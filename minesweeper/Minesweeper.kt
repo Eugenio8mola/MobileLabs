@@ -61,31 +61,29 @@ fun computeBoard(inputBoard: List<String>): List<String> {
                 myString =   myString + " "
         }
         else{
-            myString =   myString + "*"
+            myString =   myString + "$i"
         }
-        if(count % C == 0) {
+        if(count % C == 0 ) {
             emptyBoard.add("$myString")
             myString = ""     //flush the string
         }
         count++
 
     }
+
 //print Result
-     count = 1
     for(i in emptyBoard)
     {
-        print(i)
-        if(count % C == 0)
-            print("\n")
-        count++
-
+        println(i)
     }
+
 
     if(R == 1 && C == 0)
     {
         var myNewBoard = Collections.singletonList<String>("")
         return myNewBoard
     }
+
 
     return emptyBoard
 
