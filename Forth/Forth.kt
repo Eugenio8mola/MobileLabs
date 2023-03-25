@@ -1,15 +1,15 @@
-import com.sun.jdi.request.InvalidRequestStateException
 
 class InvalidException(message: String): Exception(message)
-
-
+val operations = mutableListOf<String>()
 
 class Forth {
 
+
     fun evaluate(vararg line: String): List<Int> {
-        val words = mutableListOf<String>("DUP", "DROP", "SWAP", "OVER","+","-","*","/")
+        val words = mutableListOf<String>()//val words = mutableListOf<String>("dup", "drop", "swap", "over","+","-","*","/")
         val emptyList = mutableListOf<String>()
         var stack = mutableListOf<Int>()
+
 
         //var wordName = ": word-name definition;"
 
@@ -20,20 +20,37 @@ class Forth {
             println("point is $point")
             println(emptyList)
             /*
-            val isWord =   point.lowercase().contains(": word-") && point.lowercase().contains(";")
+            val isWord =   point.lowercase().contains(":") && point.lowercase().contains(";")
             if(isWord) {
-                val name = defineNewWord(point)
-                words.add("$name")
+
             }
 
              */
+
+            var listOfNum = emptyList.toString().split(" ", "[" , "]")
+            emptyList.clear()
+            listOfNum = listOfNum.slice(1..(listOfNum.size-2))
+            println(listOfNum.elementAt((listOfNum.size)-1))
+
+            if(listOfNum.last().equals(";"))
+            {
+                println("enters")
+                listOfNum = listOfNum.slice(0..(listOfNum.size-2))
+            }
+
+            println("content of listNum $listOfNum")
+
+            stack = toInteger(listOfNum,stack,words)
         }
 
+        /*
         var listOfNum = emptyList.toString().split(" ", "[" , "]")
         listOfNum = listOfNum.slice(1..(listOfNum.size-2))
         println(listOfNum)
 
         stack = toInteger(listOfNum,stack)
+
+         */
 
         return stack
     }
@@ -44,11 +61,11 @@ class Forth {
 fun defineNewWord(word:String):String
 {
     //var word = ": word-name definition;"
-    var list = word.split(" ", ":", "-",";")
+    var list = word.split(" ", ":", ";")
     // new word
     val myList = list.slice(2..4)
     val name = myList.elementAt(1)
-    return name.uppercase()
+    return name.lowercase()
 }
 
 
@@ -59,8 +76,11 @@ fun isNumeric(str: String): Boolean {
 
 
 
-fun toInteger(list : List<String>, stack : MutableList<Int>) :MutableList<Int>
+fun toInteger(list : List<String>, stack : MutableList<Int>,words : MutableList<String>) :MutableList<Int>
 {
+    //val operations = mutableListOf<String>()
+     //"dup", "drop", "swap", "over","+","-","*","/"
+    var isWord : Boolean = false
     val newStack = mutableListOf<Int>()
     for((index,element) in list.withIndex()) {
         if(isNumeric(element))
@@ -70,8 +90,10 @@ fun toInteger(list : List<String>, stack : MutableList<Int>) :MutableList<Int>
         }
         else
         {
+
             when (element.lowercase())
             {
+
                 "+" -> {
                     if(stack.size == 1) throw InvalidException("only one value on the stack")
                     if(stack.size == 0) throw InvalidException("empty stack")
@@ -118,9 +140,12 @@ fun toInteger(list : List<String>, stack : MutableList<Int>) :MutableList<Int>
                 {
                     if(stack.size == 0) throw InvalidException("empty stack")
                     else{
-                        newStack.add(stack.elementAt(index - 1) )
-                        stack.addAll(newStack)
-                        newStack.clear()
+                        println(stack)
+                        stack.add(stack.last())
+                        println(stack)
+                        println("--using-- dup ")
+                        //stack.addAll(newStack)
+                        //newStack.clear()
                     }
 
                 }
@@ -128,7 +153,9 @@ fun toInteger(list : List<String>, stack : MutableList<Int>) :MutableList<Int>
                 {
                     if(stack.size == 0) throw InvalidException("empty stack")
                     else{
-                        stack.removeAt(index - 1)
+                        stack.removeAt(stack.size-1)
+
+
 
                     }
 
@@ -138,12 +165,14 @@ fun toInteger(list : List<String>, stack : MutableList<Int>) :MutableList<Int>
                     if(stack.size == 1) throw InvalidException("only one value on the stack")
                     if(stack.size == 0) throw InvalidException("empty stack")
                     else{
-                        newStack.add(stack.elementAt(index - 1) )
-                        newStack.add(stack.elementAt(index - 2) )
-                        stack.removeAt(index-1)
-                        stack.removeAt(index-2)
+
+                        newStack.add(stack.elementAt(((stack.size)-1)) )
+                        newStack.add(stack.elementAt(((stack.size)-2)) )
+                        stack.removeAt((stack.size-1))
+                        stack.removeAt((stack.size-1))
                         stack.addAll(newStack)
                         newStack.clear()
+
 
                     }
 
@@ -158,6 +187,55 @@ fun toInteger(list : List<String>, stack : MutableList<Int>) :MutableList<Int>
                     }
 
                 }
+
+                ":"->
+                {
+                    if(isNumeric(list.elementAt(index+1))) throw InvalidException("illegal operation")
+                    else{
+
+                        words.clear()  //flush list at each definition
+                        operations.clear()
+                        println("initial list is $list")
+                        println(list.elementAt(1))
+                        val name = list.elementAt(1).lowercase()
+                        words.add("$name")
+                        //var operationList = list.mapIndexed { index,item -> index > 1 }.toList()
+                        operations.addAll(list.takeLast(list.size -2))
+                        println("operation is $operations")
+                        println("name is = $name")
+                        isWord = true
+                        println(words)
+                        return stack
+
+
+                    }
+
+                }
+                else -> {
+                    println("stack is $stack")
+                    println(words)
+                    var nonExistent :Boolean = true
+                    for (word in words){
+                        println("[$word] in $words ")
+                        if(element.equals(word))
+                        {
+                            nonExistent = false
+                        }
+
+                                        }
+                    if(nonExistent) throw InvalidException("undefined operation")
+                    else
+                    {
+                       val wordStack =  toInteger(operations, stack,words)
+                        println("stack is $stack")
+                        return stack
+
+
+
+                    }
+                        }
+
+
             }
         }
 
@@ -166,6 +244,7 @@ fun toInteger(list : List<String>, stack : MutableList<Int>) :MutableList<Int>
 
     return stack
 }
+
 /*
 fun main()
 {
