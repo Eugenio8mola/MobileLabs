@@ -79,7 +79,7 @@ fun isNumeric(str: String): Boolean {
 fun toInteger(list : List<String>, stack : MutableList<Int>,words : MutableList<String>) :MutableList<Int>
 {
     //val operations = mutableListOf<String>()
-     //"dup", "drop", "swap", "over","+","-","*","/"
+    //"dup", "drop", "swap", "over","+","-","*","/"
     var isWord : Boolean = false
     val newStack = mutableListOf<Int>()
     for((index,element) in list.withIndex()) {
@@ -119,7 +119,8 @@ fun toInteger(list : List<String>, stack : MutableList<Int>,words : MutableList<
                     if(stack.size == 1) throw InvalidException("only one value on the stack")
                     if(stack.size == 0) throw InvalidException("empty stack")
                     else {
-                        newStack.add(stack.elementAt(0) * stack.elementAt(1))
+
+                        newStack.add(stack.elementAt(stack.size-2) * stack.elementAt(stack.size-1))
                         stack.clear()
                         stack.addAll(newStack)
                         newStack.clear()
@@ -128,9 +129,10 @@ fun toInteger(list : List<String>, stack : MutableList<Int>,words : MutableList<
                 "/"-> {
                     if(stack.size == 1) throw InvalidException("only one value on the stack")
                     if(stack.size == 0) throw InvalidException("empty stack")
-                    if(stack.elementAt(index - 1) == 0) throw InvalidException("divide by zero")
+                    if(stack.elementAt(stack.size-1) == 0) throw InvalidException("divide by zero")
                     else{
-                        newStack.add(stack.elementAt(0) / stack.elementAt(1))
+
+                        newStack.add(stack.elementAt(stack.size-2) / stack.elementAt(stack.size-1))
                         stack.clear()
                         stack.addAll(newStack)
                         newStack.clear()
@@ -222,18 +224,18 @@ fun toInteger(list : List<String>, stack : MutableList<Int>,words : MutableList<
                             nonExistent = false
                         }
 
-                                        }
+                    }
                     if(nonExistent) throw InvalidException("undefined operation")
                     else
                     {
-                       val wordStack =  toInteger(operations, stack,words)
+                        val wordStack =  toInteger(operations, stack,words)
                         println("stack is $stack")
                         return stack
 
 
 
                     }
-                        }
+                }
 
 
             }
